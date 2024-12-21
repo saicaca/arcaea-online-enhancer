@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Arcaea Online Enhancer
 // @namespace    https://github.com/saicaca
-// @version      1.0
+// @version      1.1.0
 // @description  Show the rating of each play and the average rating on the Arcaea Online page.
 // @author       saicaca
 // @match        https://arcaea.lowiro.com/*
 // @homepageURL  https://github.com/saicaca/arcaea-online-enhancer
 // @grant        GM_addStyle
 // @license      MIT
+// @downloadURL  https://update.greasyfork.org/scripts/521374/Arcaea%20Online%20Enhancer.user.js
+// @updateURL    https://update.greasyfork.org/scripts/521374/Arcaea%20Online%20Enhancer.meta.js
 // ==/UserScript==
 
 (function() {
@@ -37,6 +39,8 @@
             child.classList.contains('card')
         );
 
+        // Calculate the average rating of the best 30 scores and the best recent scores
+
         const best30Scores = data.value.best_rated_scores;
         const bestRecentScores = data.value.recent_rated_scores;
 
@@ -56,20 +60,40 @@
             </div>
         `);
 
+        // Add the rating of each play and chart constants
 
         const scores = [...best30Scores, ...bestRecentScores];
 
         for (let i= 0; i < scores.length; i++) {
             let card = cardEls[i];
-            const section = card.querySelector('.section-1');
-            if (section) {
-                section.insertAdjacentHTML('afterbegin', `
+            const section1 = card.querySelector('.section-1');
+            if (section1) {
+                section1.insertAdjacentHTML('afterbegin', `
                     <div class="aoe-rating-text">${scores[i].rating.toFixed(3)}</div>
+                `);
+            }
+
+            const section2 = card.querySelector('.section-2');
+            if (section2) {
+                let chartConst = 0;
+                if (scores[i].score >= 9800000) {
+                    chartConst = (scores[i].rating - 1 - (scores[i].score - 9800000) / 200000).toFixed(1);
+                } else {
+                    chartConst = (scores[i].rating - (scores[i].score - 9500000) / 300000).toFixed(1);
+                }
+
+                const constColor = chartConst >= 11 ? '#FF9500' :
+                    chartConst >= 10 ? '#E12A55' :
+                    chartConst >= 9 ? '#882299' :
+                    chartConst >= 8 ? '#2BB36B' :
+                        '#1082BE';
+
+                section2.insertAdjacentHTML('beforeend', `
+                    <div class="aoe-constant-text" style="color: ${constColor}">${chartConst}</div>
                 `);
             }
         }
     }
-
 })();
 
 GM_addStyle(`
@@ -89,6 +113,16 @@ GM_addStyle(`
         background: linear-gradient(to bottom, #882299, #5566AA);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-size: 18px;
+    }
+    .card .section-2 {
+        flex-direction: column;
+        gap: 4px;
+        align-items: center !important;
+    }
+    .aoe-constant-text {
+        font-family: Titillium Web;
+        font-weight: bold;
         font-size: 18px;
     }
 `);

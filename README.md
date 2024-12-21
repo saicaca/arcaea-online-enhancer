@@ -1,8 +1,7 @@
 https://greasyfork.org/en/scripts/521374-arcaea-online-enhancer
 
-https://github.com/saicaca/arcaea-online-enhancer
-
-- Display the rating of each play
-- Display the average rating of best 30 and best recent plays
+- Show the rating of each play
+- Show the average rating of the best 30 and the best recent plays
+- Show the chart constants
 
 ![Screenshot](screenshot.png)
